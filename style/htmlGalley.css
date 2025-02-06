@@ -9,58 +9,67 @@
  * @brief Classes for inline HTML-Documents
  */
 
+.inline_html {
+	/* table style */
+	table {
+		overflow-y: auto;
+		display: block;
+		margin-left: 1em;
+		border-collapse: collapse;
+	}
 
-.inline_html caption {
-	padding-bottom: 5px;
-	caption-side: top;   /* overwrite bootstrap */
-	text-align: left;
-	color: rgba(0,0,0,0.54);
-	caption-side: top;
-	font-size: 1.0em;
-	font-style:italic;
-	border-radius: .3em .3em 0 0;
-	padding: .5em 0.3em 0 0
+	table, th, td {
+		padding: .3em .5em;
+	}
+
+	th, td {
+		color: rgba(0, 0, 0, 0.87);
+		padding: 10px;
+	}
+
+	th {
+		font-weight: 900;
+		border-top: 1px solid rgba(0, 0, 0, 0.87);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.87);
+	}
+
+	/* table bottom */
+	tr:last-child {
+		border-bottom: 1px solid rgba(0, 0, 0, 0.87);
+	}
+
+	/* each even tr grey */
+	tbody tr:nth-child(even) {
+		background-color: #e7e7e7;
+		color: #000;
+	}
+
+	/* Tabellenüberschrift */
+	caption, figcaption {
+		color: rgba(0, 0, 0, 0.54);
+		font-style: italic;
+	}
+
+	caption {
+		padding-bottom: 5px;
+		caption-side: top; /* overwrite Bootstrap */
+		text-align: left;
+		font-size: 1em;
+		border-radius: .3em .3em 0 0;
+		padding: .5em 0.3em 0 0;
+	}
+
+	/* Inhaltsverzeichnis */
+	.toc ul {
+		list-style: none;
+	}
+
+	/* Schwarzer Text für Labels */
+	.item .label {
+		color: black;
+	}
 }
 
-.inline_html table, th, td { 
-	border-collapse: collapse;
-	padding: .3em .5em; 
-}
-
-.inline_html table {
-	overflow-y:scroll;
-	display:block;
-	margin-left: 1em;
-}
-
-.inline_html th { 
-	color: rgba(0,0,0,0.87);
-	font-weight: 900; 
-	padding: 10px;
-	border-top: 1px solid rgba(0,0,0,0.87);
-	border-bottom: 1px solid rgba(0,0,0,0.87);
-}
-
-/* each even tr grey */
-.inline_html tbody tr:nth-child(even) { 
-	background-color: #e7e7e7; 
-	color: #000; 
-}
-
-.inline_html td {
-	color: rgba(0,0,0,0.87);
-	padding: 10px;
-}
-
-/* table bottom */
-.inline_html tr:last-child {
-	 border-bottom: 1px solid rgba(0,0,0,0.87);
-}
-
-
-.inline_html figcaption {
-	color: rgba(0,0,0,0.54);
-}
 
 /* alter css of the html display page */
 /* works with default theme */
@@ -75,9 +84,8 @@
     right: 0px;
 }
 
-
-// needed for scrollable tables 
-// TODO geht evtl. anders besser
+// needed for scrollable tables
+// TODO geht evtl anders
 // sidebar-width is 300px;
 .inline_html {
       width: 300px;
@@ -133,7 +141,7 @@
 @media( min-width: 1200px ) {
 	.inline_html {
 		/*width: @screen-lg-desktop-container - @sidebar-width - @triple */
-		width: 870px;
+		width: 850px;
 	}
 	.pkp_structure_main:first-child:last-child {
 		margin-top: 10px;
