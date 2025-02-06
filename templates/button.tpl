@@ -11,7 +11,7 @@
  *}
 {if !$embeddedHtmlGalley}
 <div class="item full_text_button" style="text-align: center;padding-bottom: 0px">
-	<a class="obj_galley_link html" onclick="_paq.push(['trackEvent', 'COUNTER5', 'Total_Item_Requests']);_paq.push(['trackEvent', 'COUNTER5', 'Total_Item_Investigations']);" {* sub-oh Matomo *}
+	<a class="obj_galley_link html"
 		href="{url page="article" op="view" path=$submissionId|to_array:$galleyId}">
 		{translate key="plugins.generic.embeddedHtmlGalley.button.label"}{$galleyLabel}
 	</a>
