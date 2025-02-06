@@ -22,3 +22,6 @@ msgstr "Back to Article page"
 
 msgid "plugins.generic.embeddedHtmlGalley.button.label"
 msgstr "Read the full version"
+
+msgid "plugins.generic.embeddedHtmlGalley.license"
+msgstr "License information"

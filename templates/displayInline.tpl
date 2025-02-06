@@ -75,7 +75,7 @@
 {/if}
 
 
-{* sub-hh / set to 1 -> no sidebar *}
+{* sub-oh / set to 1 -> no sidebar *}
 {assign var=isFullWidth value=1}
 <!-- +++ embedded HTML template +++ -->
 
@@ -169,7 +169,7 @@
 		{/if}
 
 		{* References *}
-		{* sub-oh 20200901 erstmal nicht!
+		{* sub-oh 20200901 no references
 		{if $parsedCitations || $publication->getData('citationsRaw')}
 			<section class="item references">
 				<h2 class="label">
@@ -192,14 +192,14 @@
 
 		<div class="entry_details">
 
-			{* sub-hh *}
+			{* sub-oh *}
                         <div class="item backlink">
                                 <a href="{url page="article" op="view" path=$article->getId()}"><span class="fa fa-arrow-left"></span> {translate key="plugins.themes.modpub-theme.backLink"}</a>
                         </div>
 
 			{* Article/Issue cover image *}
 			{if $publication->getLocalizedData('coverImage') || ($issue && $issue->getLocalizedCoverImage())}
-				{* sub-hh 20211010 hide/show cover image *}
+				{* sub-oh 20211010 hide/show cover image *}
 				<!-- div class="item cover_image">
 					<div class="sub_item">
 						{if $publication->getLocalizedData('coverImage')}
@@ -254,15 +254,15 @@
 					{call_hook name="Templates::Article::Details::PlumX"}
 				</div>
 			{/if}
-		
-			{* sub-hh *}
+
+			{* sub-oh *}
 			{call_hook name="Templates::Article::Details::AddCitations"}
 			{call_hook name="Templates::Article::Details::SimpleStatistics"}
 
 			{if $publication->getData('datePublished')}
 			<div class="item published">
 				<section class="sub_item">
-					{* sub-hh 20200508 zusätzlich date received und accepted *}
+					{* sub-oh 20200508 date received and accepted *}
 					<h2 class="label"> {translate key="plugins.themes.modpub-theme.dates.received"} </h2>
 					<div class="value"> {$article->getDateSubmitted()|escape|date_format:$dateFormatShort} </div>
 					{if $dateAccepted}
@@ -406,7 +406,7 @@
 
 			{* PubIds (requires plugins) *}
 			{foreach from=$pubIdPlugins item=pubIdPlugin}
-				{if $pubIdPlugin->getPubIdType() == 'doi' or $pubIdPlugin->getPubIdType() == 'other::urn'} {* sub-hh 20211010 no display of URN*}
+				{if $pubIdPlugin->getPubIdType() == 'doi' or $pubIdPlugin->getPubIdType() == 'other::urn'} {* sub-oh 20210505 no display of URN*}
 					{continue}
 				{/if}
 				{assign var=pubId value=$article->getStoredPubId($pubIdPlugin->getPubIdType())}
@@ -432,7 +432,7 @@
 			{if $currentContext->getLocalizedData('licenseTerms') || $publication->getData('licenseUrl')}
 				<div class="item copyright">
 					<h2 class="label">
-						{translate key="submission.license"}
+						{translate key="plugins.generic.embeddedHtmlGalley.license"} {* sub-oh *}
 					</h2>
 					{if $publication->getData('licenseUrl')}
 						{if $ccLicenseBadge}

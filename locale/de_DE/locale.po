@@ -23,3 +23,6 @@ msgstr "Zurück zur Abstract-Seite"
 msgid "plugins.generic.embeddedHtmlGalley.button.label"
 msgstr "Den gesamten Artikel lesen"
 
+msgid "plugins.generic.embeddedHtmlGalley.license"
+msgstr "Lizenzinformation"
+
