@@ -13,6 +13,7 @@
  *
  * @brief Class for EmbeddedHtmlGalley plugin
  */
+use PKP\facades\Locale;
 
 import('plugins.generic.htmlArticleGalley.HtmlArticleGalleyPlugin');
 
@@ -60,6 +61,9 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
                 $output =& $params[2];
 
                 $request = $this->getRequest();
+                $context = $request->getContext();
+                $primaryLocale = $context->getPrimaryLocale();
+
 
 		if ($templateMgr && $request) {
 			$router = $request->getRouter();
@@ -70,14 +74,23 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
 					if ($galley->getFileType() == 'text/html') {
 						$templateMgr->assign('submissionId', $submission->getBestArticleId());
 						$templateMgr->assign('galleyId', $galley->getBestGalleyId());
+						// TODO: Always display language or only if not primary?
+						//if ($galley->getLocale() != $primaryLocale) {
+                                                if ($galley->getLocale()) {
+                                                        //error_log ("galleyLocale: " . var_export($galley->getLocale(),true));
+                                                        //$galleyLabel = ' (' . Locale::getMetadata($galley->getLocale())->getDisplayName() . ')';
+                                                        $galleyLabel = ' - ' . $galley->getGalleyLabel();
+                                                } else {
+                                                        $galleyLabel = '';
+                                                }
+                                                $templateMgr->assign('galleyLabel', $galleyLabel);
+
 						$output = $templateMgr->fetch($this->getTemplateResource('button.tpl')) . $output;
 					}
 				}
 			}
 		}
 	}
-
-
 
 
 	/**
@@ -94,31 +107,38 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
 		$htmlGalleyStyle = '';
 
 		if ($galley && $galley->getFileType() == 'text/html') {
-			$templateMgr = TemplateManager::getManager($request);
-			$templateMgr->assign(array(
-				'issue' => $issue,
-				'article' => $article,
-				'galley' => $galley,
-				'hasAccess' => 1,
-			));
-			//TODO - hasAccess: what if user actually has no access?
-			
-			$embeddedHtmlGalley = $this->_getHTMLContents($request, $galley);
-			$embeddedHtmlGalleyBody = $this->_extractBodyContents($embeddedHtmlGalley, $htmlGalleyStyle);
-			$templateMgr->assign('embeddedHtmlGalley', $embeddedHtmlGalleyBody);
+			$fileId = $galley->getFileId();
+			if (!HookRegistry::call('HtmlArticleGalleyPlugin::articleDownload', array($article,  &$galley, &$fileId))) {
 
-			// tables etc.
-			$url = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/style/htmlGalley.css';
-			$templateMgr->addStyleSheet('HtmlGalleyStyle', $url);
 
-			// insert extracted style
-			$templateMgr->addStyleSheet('embeddedHtmlGalleyStyle', $htmlGalleyStyle, ['inline' => true]);
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->assign(array(
+					'issue' => $issue,
+					'article' => $article,
+					'galley' => $galley,
+					'hasAccess' => 1,
+				));
+				//TODO - hasAccess: what if user actually has no access?
+				
+				$embeddedHtmlGalley = $this->_getHTMLContents($request, $galley);
+				$embeddedHtmlGalleyBody = $this->_extractBodyContents($embeddedHtmlGalley, $htmlGalleyStyle);
+				$templateMgr->assign('embeddedHtmlGalley', $embeddedHtmlGalleyBody);
 
-			$templateMgr->display($this->getTemplateResource('displayInline.tpl'));
+				// tables etc.
+				$url = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/style/htmlGalley.css';
+				$templateMgr->addStyleSheet('HtmlGalleyStyle', $url);
 
-			return true;
+				// insert extracted style
+				$templateMgr->addStyleSheet('embeddedHtmlGalleyStyle', $htmlGalleyStyle, ['inline' => true]);
+
+				$returner = true;
+				HookRegistry::call('HtmlArticleGalleyPlugin::articleDownloadFinished', array(&$returner));
+
+				$templateMgr->display($this->getTemplateResource('displayInline.tpl'));
+
+				return true;
+			}
 		}
-
 		return false;
 	}
 
