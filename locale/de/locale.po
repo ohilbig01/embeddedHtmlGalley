@@ -15,7 +15,7 @@ msgid "plugins.generic.embeddedHtmlGalley.displayName"
 msgstr "Embedded HTML-Artikelfahne-Plugin"
 
 msgid "plugins.generic.embeddedHtmlGalley.description"
-msgstr "Dieses Plugin stellt die Unterstützung für die Anzeige von emnbedded HTML-Artikelfahnen bereit."
+msgstr "Dieses Plugin fügt HTML-Galleys inline in die OJS-Seite ein."
 
 msgid "plugins.generic.embeddedHtmlGalley.backLink"
 msgstr "Zurück zur Abstract-Seite"

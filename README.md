@@ -26,6 +26,7 @@ Some things were added:
 ## Installation
 
 * install as a "generic" plugin
+* copy your templates/frontend/objects/article_details.tpl into the templates directory of this plugin and customize it as shown in the example displayInline.EXAMPLE.tpl
 * disable (not delete) the PKP htmlArticleGalley plugin
 * enable this plugin
 

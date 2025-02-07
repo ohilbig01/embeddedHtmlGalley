@@ -4,8 +4,8 @@
  * @file plugins/generic/embeddedHtmlGalley/EmbeddedHtmlGalleyPlugin.inc.php
  *
  * Copyright (c) University of Pittsburgh
- * Copyright (c) 2014-2021 Simon Fraser University
- * Copyright (c) 2003-2021 John Willinsky
+ * Copyright (c) 2014-2025 Simon Fraser University
+ * Copyright (c) 2003-2025 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @class EmbeddedHtmlGalleyPlugin
@@ -14,9 +14,15 @@
  * @brief Class for EmbeddedHtmlGalley plugin
  */
 
-import('plugins.generic.htmlArticleGalley.HtmlArticleGalleyPlugin');
+namespace APP\plugins\generic\embeddedHtmlGalley;
 
-class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
+use PKP\plugins\GenericPlugin;
+use PKP\plugins\Hook;
+use APP\template\TemplateManager;
+use PKP\facades\Locale;
+use DOMDocument;
+
+class EmbeddedHtmlGalleyPlugin extends \APP\plugins\generic\htmlArticleGalley\HtmlArticleGalleyPlugin {
 	/**
 	 * @see Plugin::register()
 	 */
@@ -25,7 +31,7 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
 		if (!$success) return false;
 		if ($success && $this->getEnabled()) {
 			// Add button to article view page
-			HookRegistry::register('Templates::Article::Main', array($this, 'addReadButton'));
+			Hook::add('Templates::Article::Main', [$this, 'addReadButton']);
 		}
 		return true;
 	}
@@ -60,6 +66,8 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
                 $output =& $params[2];
 
                 $request = $this->getRequest();
+		$context = $request->getContext();
+		$primaryLocale = $context->getPrimaryLocale();
 
 		if ($templateMgr && $request) {
 			$router = $request->getRouter();
@@ -70,14 +78,23 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
 					if ($galley->getFileType() == 'text/html') {
 						$templateMgr->assign('submissionId', $submission->getBestArticleId());
 						$templateMgr->assign('galleyId', $galley->getBestGalleyId());
+
+						// TODO: Always display language or only if not primary?
+						//if ($galley->getLocale() != $primaryLocale) {
+						if ($galley->getLocale()) {
+						       	//error_log ("galleyLocale: " . var_export($galley->getLocale(),true));
+							$galleyLabel = ' (' . Locale::getMetadata($galley->getLocale())->getDisplayName() . ')';
+						} else {
+							$galleyLabel = '';
+						}
+						$templateMgr->assign('galleyLabel', $galleyLabel);
+
 						$output = $templateMgr->fetch($this->getTemplateResource('button.tpl')) . $output;
 					}
 				}
 			}
 		}
 	}
-
-
 
 
 	/**
@@ -94,37 +111,46 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
 		$htmlGalleyStyle = '';
 
 		if ($galley && $galley->getFileType() == 'text/html') {
-			$templateMgr = TemplateManager::getManager($request);
-			$templateMgr->assign(array(
-				'issue' => $issue,
-				'article' => $article,
-				'galley' => $galley,
-			));
-			$embeddedHtmlGalley = $this->_getHTMLContents($request, $galley);
-			$embeddedHtmlGalleyBody = $this->_extractBodyContents($embeddedHtmlGalley, $htmlGalleyStyle);
-			$templateMgr->assign('embeddedHtmlGalley', $embeddedHtmlGalleyBody);
+			$submissionFileId = $galley->getData('submissionFileId');
+			if (!Hook::call('HtmlArticleGalleyPlugin::articleDownload', [$article,  &$galley, &$submissionFileId])) {
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->assign(array(
+					'issue' => $issue,
+					'article' => $article,
+					'galley' => $galley,
+					'hasAccess' => 1,
+				));
+				//TODO - hasAccess: what if user actually has no access?
+				
+				$embeddedHtmlGalley = $this->_getHTMLContents($request, $galley);
+				$embeddedHtmlGalleyBody = $this->_extractBodyContents($embeddedHtmlGalley, $htmlGalleyStyle);
+				$templateMgr->assign('embeddedHtmlGalley', $embeddedHtmlGalleyBody);
 
-			// tables etc.
-			$url = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/style/htmlGalley.css';
-			$templateMgr->addStyleSheet('HtmlGalleyStyle', $url);
+				// tables etc.
+				$url = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/style/htmlGalley.css';
+				$templateMgr->addStyleSheet('HtmlGalleyStyle', $url);
 
-			// insert extracted style
-			$templateMgr->addStyleSheet('embeddedHtmlGalleyStyle', $htmlGalleyStyle, ['inline' => true]);
+				// insert extracted style
+				$templateMgr->addStyleSheet('embeddedHtmlGalleyStyle', $htmlGalleyStyle, ['inline' => true]);
 
-			$templateMgr->display($this->getTemplateResource('displayInline.tpl'));
+				$returner = true;
+				Hook::call('HtmlArticleGalleyPlugin::articleDownloadFinished', [&$returner]);
 
-			return true;
+				$templateMgr->display($this->getTemplateResource('displayInline.tpl'));
+
+				return true;
+			}
 		}
-
 		return false;
 	}
+
 
 	/**
 	 * Return string containing the contents of the HTML body
 	 * @param $html string
 	 * @return string
 	 */
-	function _extractBodyContents($html, &$htmlGalleyStyle) {
+	private function _extractBodyContents($html, &$htmlGalleyStyle) {
 		$bodyContent = '';
 		try {
 			if (!function_exists('libxml_use_internal_errors') || !class_exists('DOMDocument')) {
@@ -132,7 +158,8 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
 			}
 			$errorsEnabled = libxml_use_internal_errors();
 			libxml_use_internal_errors(true);
-			$dom = DOMDocument::loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', "UTF-8"));
+			$dom = new DOMDocument();
+			$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', "UTF-8"));
 
 			// get galley style 
 			$styles = $dom->getElementsByTagName('style');
@@ -145,7 +172,6 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
 				foreach ($body->childNodes as $child) {
 					$bodyContent .= $dom->saveHTML($child);
 				}
-				last;
 			}
 			libxml_use_internal_errors($errorsEnabled);
 
