@@ -169,7 +169,7 @@
 		{/if}
 
 		{* References *}
-		{* sub-oh 20200901 erstmal nicht!
+		{* sub-oh 20200901 no references
 		{if $parsedCitations || $publication->getData('citationsRaw')}
 			<section class="item references">
 				<h2 class="label">
@@ -199,7 +199,7 @@
 
 			{* Article/Issue cover image *}
 			{if $publication->getLocalizedData('coverImage') || ($issue && $issue->getLocalizedCoverImage())}
-				{* sub-oh 20211010 no cover image? *}
+				{* sub-oh 20211010 hide/show cover image *}
 				<div class="item cover_image">
 					<div class="sub_item">
 						{if $publication->getLocalizedData('coverImage')}

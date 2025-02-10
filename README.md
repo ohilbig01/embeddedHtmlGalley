@@ -17,7 +17,7 @@ Some things were added:
 
 ## Requirements
 
-* OJS 3.x
+* OJS 3.4
   * The PKP plugin htmlArticleGalley (which ships by default with OJS)
 * PHP modules
   * [libxml](https://www.php.net/manual/en/book.libxml.php)
