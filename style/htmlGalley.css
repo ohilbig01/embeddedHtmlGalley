@@ -44,6 +44,16 @@
 		color: #000;
 	}
 
+	figure img {
+		cursor: pointer;
+		transition: transform 0.2s ease, opacity 0.2s ease;
+	}
+
+	figure img:hover {
+		/* transform: scale(1.05); */
+		opacity: 0.8;
+	}
+
 	/* Tabellenüberschrift */
 	caption, figcaption {
 		color: rgba(0, 0, 0, 0.54);
