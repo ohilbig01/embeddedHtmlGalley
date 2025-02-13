@@ -124,12 +124,16 @@ class EmbeddedHtmlGalleyPlugin extends HtmlArticleGalleyPlugin {
 				$embeddedHtmlGalleyBody = $this->_extractBodyContents($embeddedHtmlGalley, $htmlGalleyStyle);
 				$templateMgr->assign('embeddedHtmlGalley', $embeddedHtmlGalleyBody);
 
-				// tables etc.
-				$url = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/style/htmlGalley.css';
-				$templateMgr->addStyleSheet('HtmlGalleyStyle', $url);
+				$baseImportPath = $request->getBaseUrl() . '/' . $this->getPluginPath();
+
+				// styles
+				$templateMgr->addStyleSheet('HtmlGalleyStyle', $baseImportPath . '/' . '/style/htmlGalley.css');
 
 				// insert extracted style
 				$templateMgr->addStyleSheet('embeddedHtmlGalleyStyle', $htmlGalleyStyle, ['inline' => true]);
+
+				// javascript to popup images
+                                $templateMgr->addJavaScript('EmbeddedHtmlGalley', $baseImportPath . '/js/embeddedHtmlGalley.js', array( 'contexts' => 'frontend'));
 
 				$returner = true;
 				HookRegistry::call('HtmlArticleGalleyPlugin::articleDownloadFinished', array(&$returner));
