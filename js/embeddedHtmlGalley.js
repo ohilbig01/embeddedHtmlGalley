@@ -2,7 +2,7 @@
  * @file plugins/generic/embeddedHtmlGalley/js/embeddedHtmlGalley.js
  *
  * Copyright (c) 2014-2025 Simon Fraser University
- * Copyright (c) 2000-2015 John Willinsky
+ * Copyright (c) 2000-2025 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @brief Javascript for embedded Html Galleys
